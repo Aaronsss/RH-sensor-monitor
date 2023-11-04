@@ -4,7 +4,7 @@ This plugin for RotorHazard lets you set up a warning and an alarm on any sensor
 The script has a warning and an alarm level
 
 1. Warning level will send a server message
-2. alarm level will send a server pop up and audible message
+2. Alarm level will send a server pop up and audible message
 
 The sensor is checked whenever laps are cleared so (saved or discarded after a race)
 
