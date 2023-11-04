@@ -152,5 +152,5 @@ cython_debug/
 #.idea/
 
 # Rotorhazard Plugins
-RH_*/
+rh_*/
 event_actions_udp/
