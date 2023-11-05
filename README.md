@@ -1,13 +1,20 @@
 # RH-sensor-monitor
 This plugin for RotorHazard lets you set up a warning and an alarm on any sensor that is installed within RotorHazard
 
+The script has a warning and an alarm level
+
+1. Warning level will send a server message
+2. Alarm level will send a server pop up and audible message
+
+The sensor is checked whenever laps are cleared so (saved or discarded after a race)
+
 # How to setup
 Place the sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins
 
 Start / restart the server and go the the server log (Settings -> System > Server Log)
 
 Within the server log you will see something like this:
-'''
+```
 2023-11-04 23:25:23.601: plugins.sensor_monitor [INFO] Sensor monitor available groups and sensor
 2023-11-04 23:25:23.601: plugins.sensor_monitor [INFO] -> Group name: Battery
 2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _voltage 22.592
@@ -16,7 +23,7 @@ Within the server log you will see something like this:
 2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] -> Group name: Core
 2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _temp 41.318
 2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] Battery cells detected: 6
-'''
+```
 
 You will need to note down the group name and the sensor name of the sensor you want to setup a warning on e.g. to monitor the 22.592 value you would choose Battery and _voltage
 
