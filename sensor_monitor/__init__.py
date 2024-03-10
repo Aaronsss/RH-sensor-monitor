@@ -3,7 +3,8 @@
 import logging
 logger = logging.getLogger(__name__)
 from eventmanager import Evt
-from RHUI import UIField, UIFieldType
+from EventActions import ActionEffect
+from RHUI import UIField, UIFieldType, UIFieldSelectOption
 
 class sensor_monitor():
     cellCount = 6
@@ -11,13 +12,14 @@ class sensor_monitor():
     def __init__(self, rhapi):
         self._rhapi = rhapi
 
-    def send_message_warn(self, group, sensor, value):
-        self._rhapi.ui.message_notify(group + " " + sensor[1:] + " is below the warning level and is currently: " + str(value))
+    def send_message(self, group, sensor, value, updown, message_types):
+        if message_types == 0 or message_types == 3:
+            self._rhapi.ui.message_notify(group + " " + sensor[1:] + " is " + updown + " the warning level and is currently: " + str(value))
+        if message_types == 1 or message_types == 4:   
+            self._rhapi.ui.message_alert(group + " " + sensor[1:] + " is " + updown + " the alarm level and is currently: " + str(value))
+        if message_types >= 2:
+            self._rhapi.ui.message_speak(group + " " + sensor[1:] + " is currently " + str(value))
 
-    def send_message_alert(self, group, sensor, value):
-        self._rhapi.ui.message_speak(group + " " + sensor[1:] + " is currently " + str(value))
-        self._rhapi.ui.message_alert(group + " " + sensor[1:] + " is below the alarm level and is currently: " + str(value))
-    
     def calculate_cells(self, args):
         try:
             sensor_mon_group = self._rhapi.db.option("sensor_mon_group", "")
@@ -38,28 +40,20 @@ class sensor_monitor():
             self.cellCount = 2
         logger.info("Battery cells detected: " + str(self.cellCount))
 
-    def check_sensors(self, args):
-        sensor_mon_enabled = self._rhapi.db.option("sensor_mon_enabled", "")
-
-        if sensor_mon_enabled == '1':
-            sensor_mon_group = self._rhapi.db.option("sensor_mon_group", "")
-            sensor_mon_name = self._rhapi.db.option("sensor_mon_name", "")
-            sensor_mon_warn_level = float(self._rhapi.db.option("sensor_mon_warn_level", 0))
-            sensor_mon_alarm_level = float(self._rhapi.db.option("sensor_mon_alarm_level", 0))
-            sensor_mon_cell_calc = self._rhapi.db.option("sensor_mon_cell_calc", "")
-
-            try:
-                Sensor_data = round(float(getattr(self._rhapi.sensors.sensor_obj(sensor_mon_group), sensor_mon_name)), 2)  
-                
-                if sensor_mon_cell_calc == '1':
-                    Sensor_data = round(Sensor_data / self.cellCount, 2)
-
-                if Sensor_data < sensor_mon_alarm_level:
-                    self.send_message_alert(sensor_mon_group, sensor_mon_name, Sensor_data)
-                elif Sensor_data < sensor_mon_warn_level:
-                    self.send_message_warn(sensor_mon_group, sensor_mon_name, Sensor_data)
-            except:
-                logger.info("group: " + sensor_mon_group + " sensor: " + sensor_mon_name + " not recognised!")
+    def check_sensors(self, action, args):
+        try:
+            Sensor_data = round(float(getattr(self._rhapi.sensors.sensor_obj(action['group']), action['name'])), 2)  
+            
+            if action['compare_type'] == '2' or action['compare_type'] == '3':
+                Sensor_data = round(Sensor_data / self.cellCount, 2)
+            if action['compare_type'] == '0' or action['compare_type'] == '2':
+                if Sensor_data < action['warn_value']:
+                    self.send_message_alert(action['group'], action['name'], Sensor_data, "below", int(action['warn_type']))
+            elif action['compare_type'] == '1' or action['compare_type'] == '3':
+                if Sensor_data > action['warn_value']:
+                    self.send_message_alert(action['group'], action['name'], Sensor_data, "above", int(action['warn_type']))
+        except:
+            logger.info("group: " + action['group'] + " sensor: " + action['name'] + " not recognised!")
 
     def discover_sensors(self, args):
         logger.info("Sensor monitor available groups and sensor")
@@ -71,18 +65,35 @@ class sensor_monitor():
         self.calculate_cells(args)
     
     def register_handlers(self, args):
-        print("handlers registered")
+        self.discover_sensors(args)
+        if 'register_fn' in args:
+            for effect in [
+                ActionEffect(
+                    'Sensor Monitor',
+                    self.check_sensors,
+                    [
+                        UIField('group', "Sensor Group", UIFieldType.TEXT),
+                        UIField('name', "Sensor Name", UIFieldType.TEXT),
+                        UIField('warn_type', "Type of Warning", UIFieldType.SELECT, options=[
+                            UIFieldSelectOption(0, "Message Only"),
+                            UIFieldSelectOption(1, "Alert Only"),
+                            UIFieldSelectOption(2, "Voice Call Out Only"),
+                            UIFieldSelectOption(3, "Message and Voice Call Out"),
+                            UIFieldSelectOption(4, "Alert and Voice Call Out"),
+                        ], value=0),
+                        UIField('compare_type', "Compare Type", UIFieldType.SELECT, options=[
+                            UIFieldSelectOption(0, "Less than"),
+                            UIFieldSelectOption(1, "Greater than"),
+                            UIFieldSelectOption(2, "Less than per cell voltage"),
+                            UIFieldSelectOption(3, "Greater than per cell voltage"),
+                        ], value=0),
+                        UIField('warn_value', "Sensor Warning Level", UIFieldType.TEXT),
+                    ]
+                )
+            ]:
+                args['register_fn'](effect)
 
 def initialize(rhapi):
     sensor_mon = sensor_monitor(rhapi)
     rhapi.events.on(Evt.ACTIONS_INITIALIZE, sensor_mon.register_handlers)
-    rhapi.events.on(Evt.STARTUP, sensor_mon.discover_sensors)
-    rhapi.events.on(Evt.LAPS_CLEAR, sensor_mon.check_sensors)    
-
-    rhapi.ui.register_panel('sensor_monitor', 'Sensor Monitor', 'settings', order=0)
-    rhapi.fields.register_option(UIField('sensor_mon_group', 'Sensor group', UIFieldType.TEXT), 'sensor_monitor')
-    rhapi.fields.register_option(UIField('sensor_mon_name', 'Sensor name', UIFieldType.TEXT), 'sensor_monitor')
-    rhapi.fields.register_option(UIField('sensor_mon_enabled', 'Enabled', UIFieldType.CHECKBOX), 'sensor_monitor')
-    rhapi.fields.register_option(UIField('sensor_mon_cell_calc', 'Use cell voltage', UIFieldType.CHECKBOX), 'sensor_monitor')
-    rhapi.fields.register_option(UIField('sensor_mon_warn_level', 'Warn level', UIFieldType.TEXT), 'sensor_monitor')
-    rhapi.fields.register_option(UIField('sensor_mon_alarm_level', 'Alarm level', UIFieldType.TEXT), 'sensor_monitor')
+    #rhapi.events.on(Evt.STARTUP, sensor_mon.discover_sensors)
