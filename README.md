@@ -23,7 +23,7 @@ If you wish to install manually, place the sensor_monitor folder within the Roto
 > [!IMPORTANT]
 > The sensor is only checked when the race event happens, so a timer that is sitting there not being used will not check the battery voltage for example  
 
-Go to Settings -> Event Actions tab and add click add action
+Go to Settings -> Event Actions tab and add click Add Action
 1. Sensor - the group and name of the sensor you want to monitor
 2. Warning Type - Select between messages, warning pop ups or voice call outs (or a combination of those things)
 3. Compare Type - Select between less than or greater than. You can also use the calculated battery cell voltage if you wish
