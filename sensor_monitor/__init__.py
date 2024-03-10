@@ -21,9 +21,8 @@ class sensor_monitor():
         if message_types >= 2:
             self._rhapi.ui.message_speak(group + " " + sensor[1:] + " is currently " + str(value))
 
-    def calculate_cells(self, args, group, name):
-        try:
-            volts = float(getattr(self._rhapi.sensors.sensor_obj(group), name))
+    def calculate_cells(self, args, volts):
+        if volts > 6 and volts <= 30:
             if volts > 21:
                 self.cellCount = 6
             elif volts >= 17:
@@ -35,21 +34,21 @@ class sensor_monitor():
             else:
                 self.cellCount = 2
             logger.info("[Sensor Monitor] Battery cells detected: " + str(self.cellCount))
-        except:
-            logger.info("[Sensor Monitor] Failed to detect the cell count of the sensor")
+        else:
+            logger.info("[Sensor Monitor] Battery cells not calculated as voltage outside of 6-30V range")
 
     def check_sensors(self, action, args):
         try:
             Sensor_data = round(float(getattr(self._rhapi.sensors.sensor_obj(action['group']), action['name'])), 2)  
         #Sensor_data = float(action['group'])
-            if action['compare_type'] == '2' or action['compare_type'] == '3':
+            if action['compare_type'] == '2' or action['compare_type'] == '3': # Use cell count 
                 if self.cellCount == 100:
-                    self.calculate_cells(args, action['group'], action['name'])
+                    self.calculate_cells(args, Sensor_data)
                 Sensor_data = round(Sensor_data / self.cellCount, 2)
-            if action['compare_type'] == '0' or action['compare_type'] == '2':
+            if action['compare_type'] == '0' or action['compare_type'] == '2': # less than 
                 if Sensor_data < float(action['warn_value']):
                     self.send_message(action['group'], action['name'], str(Sensor_data), "below", int(action['warn_type']))
-            elif action['compare_type'] == '1' or action['compare_type'] == '3':
+            elif action['compare_type'] == '1' or action['compare_type'] == '3': # greater than 
                 if Sensor_data > float(action['warn_value']):
                     self.send_message(action['group'], action['name'], str(Sensor_data), "above", int(action['warn_type']))
         except:
