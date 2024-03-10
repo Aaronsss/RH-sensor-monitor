@@ -7,6 +7,7 @@ Run the following command in the SSH terminal to install the sensor monitor
 cd ~
 wget https://github.com/Aaronsss/RH-sensor-monitor/archive/refs/heads/main.zip
 unzip ./main.zip
+rm -R ~/RotorHazard/src/server/plugins/sensor_monitor
 mv ~/RH-sensor-monitor-main/sensor_monitor/ ~/RotorHazard/src/server/plugins/
 rm -R ./RH-sensor-monitor-main/
 rm ./main.zip
