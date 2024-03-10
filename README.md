@@ -1,39 +1,33 @@
 # RH-sensor-monitor
-This plugin for RotorHazard lets you set up a warning and an alarm on any sensor that is installed within RotorHazard
+This plugin for [RotorHazard](https://github.com/RotorHazard/RotorHazard) lets you set up a warning on any sensors that is installed within RotorHazard
 
-The script has a warning and an alarm level
+# How to Install
+Run the following command in the SSH terminal to install the sensor monitor 
+```
+cd ~
+wget https://github.com/Aaronsss/RH-sensor-monitor/archive/refs/heads/main.zip
+unzip ./main.zip
+mv ~/RH-sensor-monitor-main/sensor_monitor/ ~/RotorHazard/src/server/plugins/
+rm -R ./RH-sensor-monitor-main/
+rm ./main.zip
+sudo systemctl restart rotorhazard.service
+```
 
-1. Warning level will send a server message
-2. Alarm level will send a server pop up and audible message
-
-The sensor is checked whenever laps are cleared so (saved or discarded after a race)
+If you wish to install manually, place the sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins then start / restart the server  
 
 # How to setup
-Place the sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins
 
-Start / restart the server and go the the server log (Settings -> System > Server Log)
+> [!IMPORTANT]
+> You must setup an Event Action correctly for this plugin to do anything.  
 
-Within the server log you will see something like this:
-```
-2023-11-04 23:25:23.601: plugins.sensor_monitor [INFO] Sensor monitor available groups and sensor
-2023-11-04 23:25:23.601: plugins.sensor_monitor [INFO] -> Group name: Battery
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _voltage 22.592
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _current 386.98170731707313
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _power 9327.134146341463
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] -> Group name: Core
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] --> Sensor name: _temp 41.318
-2023-11-04 23:25:23.602: plugins.sensor_monitor [INFO] Battery cells detected: 6
-```
+> [!IMPORTANT]
+> The sensor is only checked when the race event happens, so a timer that is sitting there not being used will not check the battery voltage for example  
 
-You will need to note down the group name and the sensor name of the sensor you want to setup a warning on e.g. to monitor the 22.592 value you would choose Battery and _voltage
+Go to Settings -> Event Actions tab and add click Add Action
+1. Sensor - the group and name of the sensor you want to monitor
+2. Warning Type - Select between messages, warning pop ups or voice call outs (or a combination of those things)
+3. Compare Type - Select between less than or greater than. You can also use the calculated battery cell voltage if you wish
+4. Sensor Warning Level - The threshold value to use to check with
 
-Next go to the Settings -> Sensor Monitor options and fill out the information, the options are as follows:
-1. Sensor group - the group name of the sensor you want to monitor
-2. Sensor name - the sensor name of the sensor you want to monitor
-3. Enabled - enables or disabled warnings and notifications
-4. Use cell voltage - Selecting this divides the sensor value by the calculated LiPo cell voltage at boot up
-5. Warn level - the level at which a server message is sent
-6. Alarm level - the level at which a server pop up and audible announcement happens
-
-An example setup can be seen below:
+An example setup to check battery voltage at the end of the race can be seen below:
 ![example setup](./img/example_setup.png)
