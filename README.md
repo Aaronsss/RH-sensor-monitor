@@ -17,7 +17,7 @@ There are 3 ways you can install this plugin
   rm ./main.zip
   sudo systemctl restart rotorhazard.service
   ```
-3. Manually: 
+3. Manually:   
   If you wish to install manually, place the custom_plugins/sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins then start / restart the server  
 
 # How to setup
