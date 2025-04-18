@@ -2,19 +2,23 @@
 This plugin for [RotorHazard](https://github.com/RotorHazard/RotorHazard) lets you set up a warning on any sensors that is installed within RotorHazard
 
 # How to Install
-Run the following command in the SSH terminal to install the sensor monitor 
-```
-cd ~
-wget https://github.com/Aaronsss/RH-sensor-monitor/archive/refs/heads/main.zip
-unzip ./main.zip
-rm -R ~/RotorHazard/src/server/plugins/sensor_monitor
-mv ~/RH-sensor-monitor-main/sensor_monitor/ ~/RotorHazard/src/server/plugins/
-rm -R ./RH-sensor-monitor-main/
-rm ./main.zip
-sudo systemctl restart rotorhazard.service
-```
-
-If you wish to install manually, place the sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins then start / restart the server  
+There are 3 ways you can install this plugin
+1. Though RotorHazards community plugin manager on RotorHazard 4.3.0 or greater:  
+   This can be found on your timer which must be connected to the internet by going to settings -> plugins -> Browse Community Plugins (online only) -> Utilities then install the Sensor Monitor plugin
+   
+2. Run the following command in the SSH terminal to install the sensor monitor 
+  ```
+  cd ~
+  wget https://github.com/Aaronsss/RH-sensor-monitor/archive/refs/heads/main.zip
+  unzip ./main.zip
+  rm -R ~/RotorHazard/src/server/plugins/sensor_monitor
+  mv ~/RH-sensor-monitor-main/custom_plugins/sensor_monitor/ ~/RotorHazard/src/server/plugins/
+  rm -R ./RH-sensor-monitor-main/
+  rm ./main.zip
+  sudo systemctl restart rotorhazard.service
+  ```
+3. Manually: 
+  If you wish to install manually, place the custom_plugins/sensor_monitor folder within the RotorHazard plugins folder Rotorhazard/src/server/plugins then start / restart the server  
 
 # How to setup
 
