@@ -6,7 +6,7 @@
     "description": "Lets the user setup warnings based on sensors connected to the pi",
     "documentation_uri": "https://github.com/Aaronsss/RH-sensor-monitor",
     "required_rhapi_version": "1.1",
-    "version": "2.1.0",
+    "version": "2.1.2",
     "category": ["Utilities"]
   }
   
